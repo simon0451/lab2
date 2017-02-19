@@ -39,21 +39,21 @@ yy = betaHat(1) + betaHat(2)*xx; %betaHat(1) is the Y-intercept, and betaHat(2) 
 m = num2str(betaHat(2),3);
 b = num2str(betaHat(1),3);
 txt = strcat('y=',m,'x+',b);
-txt1 = strcat('Units: (mV)=(mV/°C)*(°C)+(mV)');
+txt1 = strcat('Units: (mV)=',m,'(mV/°C) x(°C) +',b,'(mV)');
 
 figure(1)
 plot(ThermistorTemperature,ThermocoupleVoltage,'o',xx,yy,'--')
 title('Thermocouple Measurement Response')
-ylabel('Thermocouple Output Voltage (mV)')
-xlabel('Temperature From Thermistor (°C)')
+ylabel('Voltage (mV)')
+xlabel('Temperature (°C)')
 grid on
 xmin = -5;
 xmax = 105;
 ymin = -100;
 ymax = 1100;
 axis ([xmin xmax ymin ymax])
-text(.55*xmax,.18*ymax,txt)
-text(.55*xmax,.13*ymax,txt1)
+text(.45*xmax,.1*ymax,txt)
+text(.45*xmax,.13*ymax,txt1)
 legend('Thermocouple Output','Linear Least Squares Fit','location','southeast')
 
 %% Static Calibration Part 3
