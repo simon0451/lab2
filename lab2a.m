@@ -5,6 +5,9 @@
 %ME 646
 %Lab 2
 
+%REQUIRED FILES:
+%lab2.mat
+
 %% Static Calibration Part 2
 clear all, close all;
 load lab2.mat
@@ -46,6 +49,13 @@ ymax = 1100;
 axis ([xmin xmax ymin ymax])
 text(.45*xmax,.13*ymax,txt)
 legend('Thermocouple Output','Linear Least Squares Fit','location','southeast')
+
+%% Static Calibration Part 3
+
+%% Static Calibration Part 4
+
+
+
 
 
 
