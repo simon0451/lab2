@@ -45,7 +45,7 @@ ymin = -100;
 ymax = 1100;
 axis ([xmin xmax ymin ymax])
 text(.45*xmax,.13*ymax,txt)
-legend('Thermocouple Output','Linear Least Squares Fit','location','southeast')
+legend('Thermocouple Data Points','Least Squares Best Fit Line','location','southeast')
 
 
 
