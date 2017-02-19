@@ -57,7 +57,21 @@ text(.55*xmax,.13*ymax,txt1)
 legend('Thermocouple Output','Linear Least Squares Fit','location','southeast')
 
 %% Static Calibration Part 3
+ThermocoupleTemperature = (ThermocoupleVoltage-betaHat(1))/betaHat(2); %°C
+Part3BF = polyfit(ThermistorTemperature,ThermocoupleTemperature,1);
+p3bfyvalues = Part3BF(1)*ThermistorTemperature+Part3BF(2);
 
+figure(2)
+plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--')
+title('Thermocouple Response vs. Thermistor Response')
+ylabel('Temperature From Thermocouple (°C)')
+xlabel('Temperature From Thermistor (°C)')
+grid on
+xmin = -5;
+xmax = 105;
+ymin = -5;
+ymax = 106;
+axis ([xmin xmax ymin ymax])
 %% Static Calibration Part 4
 
 
