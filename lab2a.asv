@@ -76,11 +76,10 @@ CIofFitPOS = Yc+tvp.*Syx.*(1./length(ThermocoupleTemperature+((ThermistorTempera
 CIofFitNEG = Yc-tvp.*Syx.*(1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
 
 CIofMeasurementPOS = Yc+tvp.*Syx.*(1+1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
-CIofMeasurementNEG = Yc-tvp.*Syx.*(1+1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
-
+CIofMeasurementNEG = Yc+tvp.*Syx.*(1+1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
 
 figure(2)
-plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
+plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'m:',ThermistorTemperature,CIofFitNEG,'m:')
 title('Thermocouple Response vs. Thermistor Response')
 ylabel('Temperature From Thermocouple (°C)')
 xlabel('Temperature From Thermistor (°C)')
@@ -90,21 +89,6 @@ xmax = 105;
 ymin = -5;
 ymax = 106;
 axis ([xmin xmax ymin ymax])
-legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
-
-figure(3)
-plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
-title('Zoomed-In Thermocouple Response vs. Thermistor Response')
-ylabel('Temperature From Thermocouple (°C)')
-xlabel('Temperature From Thermistor (°C)')
-grid on
-xmin = 30;
-xmax = 50;
-ymin = 30;
-ymax = 50;
-axis ([xmin xmax ymin ymax])
-legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
-
 %% Static Calibration Part 4
 
 
