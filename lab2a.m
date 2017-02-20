@@ -72,11 +72,11 @@ for i = 1:1:length(ThermistorTemperature)
 end
 Den = sum(unsummedDen);
 
-CIofFitPOS = Yc+tvp.*Syx.*(1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
-CIofFitNEG = Yc-tvp.*Syx.*(1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
+CIofFitPOS = Yc+tvp.*Syx.*(1./length(ThermocoupleTemperature)+((ThermistorTemperature-SampleMeanValue).^2./(Den))).^.5;
+CIofFitNEG = Yc-tvp.*Syx.*(1./length(ThermocoupleTemperature)+((ThermistorTemperature-SampleMeanValue).^2./(Den))).^.5;
 
-CIofMeasurementPOS = Yc+tvp.*Syx.*(1+1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
-CIofMeasurementNEG = Yc-tvp.*Syx.*(1+1./length(ThermocoupleTemperature+((ThermistorTemperature-SampleMeanValue).^2./(Den))))^.5;
+CIofMeasurementPOS = Yc+tvp.*Syx.*(1+1./length(ThermocoupleTemperature)+((ThermistorTemperature-SampleMeanValue).^2./(Den))).^.5;
+CIofMeasurementNEG = Yc-tvp.*Syx.*(1+1./length(ThermocoupleTemperature)+((ThermistorTemperature-SampleMeanValue).^2./(Den))).^.5;
 
 
 figure(2)
@@ -106,11 +106,42 @@ axis ([xmin xmax ymin ymax])
 legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
 
 %% Static Calibration Part 4
+Thermo25Temperature = (TCV-betaHat(1))/betaHat(2); %°C
+Tbar = (sum(Thermo25Temperature))/length(Thermo25Temperature); %sample mean value
+StandardDeviation25 = std(Thermo25Temperature);
+N = length(Thermo25Temperature);
+v = N-1;
+tvp25 = 2.067; %95% confidence
+AM = sum(Thermo25Temperature)/length(Thermo25Temperature); %arithmetic mean
+for i = 1:1:length(Thermo25Temperature)
+    sxcomp(i) = (Thermo25Temperature(i)-AM)^2;
+end
+compsum = sum(sxcomp);
+Sx = ((1/v)*compsum)^.5;
+Sxbar = Sx/((N)^.5);
+XiSPOS = AM+tvp25*Sx; %positive 95% confidence limit of measurement (outer lines)
+XiSNEG = AM-tvp25*Sx;
+XiPOS = AM+tvp25*Sxbar; %positive 95% confidence limit (true mean value - inner lines)
+XiNEG = AM-tvp25*Sxbar;
 
+%% Static Calibration Part 5
 
+for i = 1:1:25
+    zeroC(i) = 0;
+end
+zeroC = zeroC';
 
-
-
-
+figure(4)
+plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',zeroC,Thermo25Temperature,'bo',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
+title('Thermocouple Response vs. Thermistor Response')
+ylabel('Temperature From Thermocouple (°C)')
+xlabel('Temperature From Thermistor (°C)')
+grid on
+xmin = -2;
+xmax = 2;
+ymin = -2;
+ymax = 2;
+axis ([xmin xmax ymin ymax])
+legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
 
 
