@@ -148,7 +148,6 @@ legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of 
 %Determining the time that the thermocouples transition to the new bath
 %cleaning up data using two methods
 
-clear all;
 %time is in seconds
 %voltage is in volts
 
@@ -167,41 +166,42 @@ steeliceboilvoltage = xlsread('Michalak_Popecki_Rose.xlsx',3,'B9:B5008');
 alumiceboiltime = xlsread('Michalak_Popecki_Rose.xlsx',4,'a:a');
 alumiceboilvoltage = xlsread('Michalak_Popecki_Rose.xlsx',4,'B9:B5008');
 
-bareiceairtime = xlsread('Michalak_Popecki_Rose.xlsx',5,'a:a'); %this is for bareiceair3 - three samples were taken and this one has the best data
-bareiceairvoltage = xlsread('Michalak_Popecki_Rose.xlsx',5,'B9:B12008');
-
 bareboilicetime = xlsread('Michalak_Popecki_Rose.xlsx',8,'a:a');
 bareboilicevoltage = xlsread('Michalak_Popecki_Rose.xlsx',8,'B9:B5008');
 
 bareiceboiltime = xlsread('Michalak_Popecki_Rose.xlsx',9,'a:a');
 bareiceboilvoltage = xlsread('Michalak_Popecki_Rose.xlsx',9,'B9:B12008');
 
-figure(5)
-plot(steelboilicetime,steelboilicevoltage,alumboilicetime,alumboilicevoltage,bareboilicetime,bareboilicevoltage)
-title('(Un-processed Data) Thermocouples - Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Voltage (V)')
-legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
-grid on
-
-figure(6)
-plot(steeliceboiltime,steeliceboilvoltage,alumiceboiltime,alumiceboilvoltage,bareiceboiltime,bareiceboilvoltage)
-title('(Un-processed Data) Thermocouples - Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Voltage (V)')
-legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
-grid on
-
-figure(7)
-plot(bareiceairtime,bareiceairvoltage)
-title('(Un-processed Data) Bare Wire Thermocouple - Ice Water to Air')
-xlabel('Time (s)')
-ylabel('Voltage (V)')
-grid on
+%REFERENCE PLOTS:
+% figure(5)
+% plot(steelboilicetime,steelboilicevoltage,alumboilicetime,alumboilicevoltage,bareboilicetime,bareboilicevoltage)
+% title('(Un-processed Data) Thermocouples - Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Voltage (V)')
+% legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
+% grid on
+% 
+% figure(6)
+% plot(steeliceboiltime,steeliceboilvoltage,alumiceboiltime,alumiceboilvoltage,bareiceboiltime,bareiceboilvoltage)
+% title('(Un-processed Data) Thermocouples - Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Voltage (V)')
+% legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
+% grid on
 
 %determining start of data position using the 5-sigma method, smoothing
 
-%boiling water to ice water
+%smoothing data:
+%the 51 represents the mask width
+steelboilicevoltage = smooth(steelboilicevoltage,51);
+alumboilicevoltage = smooth(alumboilicevoltage,51);
+bareboilicevoltage = smooth(bareboilicevoltage,51);
+
+steeliceboilvoltage = smooth(steeliceboilvoltage,51);
+alumiceboilvoltage = smooth(alumiceboilvoltage,51);
+bareiceboilvoltage = smooth(bareiceboilvoltage,51);
+
+%boiling water to ice water - METHOD 1
 %Using the tuning factor: using the wrong tuning factor will either throw
 %an error response or result in the data not being started at the proper
 %time (usually the idle time in the beginning is not cut off like it should
@@ -210,17 +210,19 @@ grid on
 steelboilicearray = pros(steelboilicetime,steelboilicevoltage,1); %outputs [time,voltage, start time tuning factor] of the input using method 1
 alumboilicearray = pros(alumboilicetime,alumboilicevoltage,.5);
 bareboilicearray = pros(bareboilicetime,bareboilicevoltage,0);
-
 %ice water to boiling water
 steeliceboilarray = pros(steeliceboiltime,steeliceboilvoltage,.5);
 alumiceboilarray = pros(alumiceboiltime,alumiceboilvoltage,.5);
 bareiceboilarray = pros(bareiceboiltime,bareiceboilvoltage,1.41);
 
-%plottting boiling water to ice water transfer
+%boiling water to icewater - METHOD 2
+slopes = slide(steelboilicetime,steelboilicevoltage);
 
+
+%plottting boiling water to ice water transfer
 %NOTE! Individual points are NOT being plotted - they form a thick line and
 %it looks terrible.
-figure(8)
+figure(7)
 plot(steelboilicearray(:,1),steelboilicearray(:,2),alumboilicearray(:,1),alumboilicearray(:,2),bareboilicearray(:,1),bareboilicearray(:,2))
 title('(Method 1) Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
@@ -229,7 +231,7 @@ legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire
 grid on
 
 %plotting ice water to boiling water transfer
-figure(9)
+figure(8)
 plot(steeliceboilarray(:,1),steeliceboilarray(:,2),alumiceboilarray(:,1),alumiceboilarray(:,2),bareiceboilarray(:,1),bareiceboilarray(:,2))
 title('(Method 1) Thermocouples - Ice Water to Boiling Water')
 xlabel('Time (s)')
@@ -238,8 +240,22 @@ legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire
 grid on
 
 
+%% Dynamic Calibration Part 5
 
+bareiceairtime = xlsread('Michalak_Popecki_Rose.xlsx',5,'a:a'); %this is for bareiceair3 - three samples were taken and this one has the best data
+bareiceairvoltage = xlsread('Michalak_Popecki_Rose.xlsx',5,'B9:B12008');
+%a very noisy signal...
 
+bareiceairvoltage = smooth(bareiceairvoltage,1001);
+bareiceairarray = pros(bareiceairtime,bareiceairvoltage,2.19);
+%bareiceairtemperature = (bareiceairarray(:,1)-betaHat(1))/betaHat(2); %betahat 2 is the slope
+
+figure(9)
+plot(bareiceairarray(:,1),bareiceairarray(:,2))
+title('Bare Wire Thermocouple - Ice Water to Air')
+xlabel('Time (s)')
+ylabel('CONVERT TO T!!! Voltage (V)')
+grid on
 
 
 
