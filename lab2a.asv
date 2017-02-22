@@ -214,10 +214,10 @@ for i=1:length(steelboilicetime)
     end
 end
 %create new variables that start from t = 0 and only contain event data
-newsteelboilicetime=steelboilicetime(starttime:length(steelboilicetime))-steelboilicetime(starttime);
-newsteelboilicevoltage=steelboilicevoltage(starttime:length(steelboilicetime));
-TstartSBI = steelboilicetime(starttime);
-VstartSBI = steelboilicevoltage(starttime);
+newsteelboilicetime=steelboilicetime(starttime:length(time))-time(starttime);
+newsteelboilicevoltage=voltage(starttime:length(time));
+ts = steelboitime(starttime);
+vs = voltage(starttime);
 
 %smooth data, locate peaks and valleys
 zerovoltage = newsteelboilicevoltage-1.56;
