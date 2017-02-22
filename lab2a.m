@@ -111,7 +111,7 @@ Tbar = (sum(Thermo25Temperature))/length(Thermo25Temperature); %sample mean valu
 StandardDeviation25 = std(Thermo25Temperature);
 N = length(Thermo25Temperature);
 v = N-1;
-tvp25 = 2.067; %95% confidence
+tvp25 = 2.067; %95% confidence, from table
 AM = sum(Thermo25Temperature)/length(Thermo25Temperature); %arithmetic mean
 for i = 1:1:length(Thermo25Temperature)
     sxcomp(i) = (Thermo25Temperature(i)-AM)^2;
@@ -146,6 +146,7 @@ legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of 
 
 %% Dynamic Calibration Part 1
 %Determining the time that the thermocouples transition to the new bath
+%cleaning up data using two methods
 
 clear all;
 %time is in seconds
@@ -177,55 +178,74 @@ bareiceboilvoltage = xlsread('Michalak_Popecki_Rose.xlsx',9,'B9:B12008');
 
 figure(5)
 plot(steelboilicetime,steelboilicevoltage,alumboilicetime,alumboilicevoltage,bareboilicetime,bareboilicevoltage)
-title('Thermocouples - Boiling Water to Ice Water')
+title('(Un-processed Data) Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
 ylabel('Voltage (V)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
+grid on
 
 figure(6)
 plot(steeliceboiltime,steeliceboilvoltage,alumiceboiltime,alumiceboilvoltage,bareiceboiltime,bareiceboilvoltage)
-title('Thermocouples - Ice Water to Boiling Water')
+title('(Un-processed Data) Thermocouples - Ice Water to Boiling Water')
 xlabel('Time (s)')
 ylabel('Voltage (V)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
+grid on
 
 figure(7)
 plot(bareiceairtime,bareiceairvoltage)
-title('Bare Wire Thermocouple - Ice Water to Air')
+title('(Un-processed Data) Bare Wire Thermocouple - Ice Water to Air')
 xlabel('Time (s)')
 ylabel('Voltage (V)')
+grid on
 
-%determining start of data position using the 5-sigma method
+%determining start of data position using the 5-sigma method, smoothing
 
-for i=1:length(steelboilicetime)
-    if steelboilicetime(i)>0 %this value will probably need to be changed from .005 depending on the data
-        basetime=i;
-        break
-    end
-end
-baseline=mean(steelboilicevoltage(1:basetime)); %average of data in baseline region
-basedev=std(steelboilicevoltage(1:basetime)); %standard deviation of baseline region
-threshold=5*basedev; %threshold to define the start of an event - 5 sigma
+%boiling water to ice water
+%Using the tuning factor: using the wrong tuning factor will either throw
+%an error response or result in the data not being started at the proper
+%time (usually the idle time in the beginning is not cut off like it should
+%be). The tuning factor should be adjusted to the poin where the input
+%function when drawn on a plot, "snaps" to the starting point.
+steelboilicearray = pros(steelboilicetime,steelboilicevoltage,1); %outputs [time,voltage, start time tuning factor] of the input using method 1
+alumboilicearray = pros(alumboilicetime,alumboilicevoltage,.5);
+bareboilicearray = pros(bareboilicetime,bareboilicevoltage,0);
 
-for i=1:length(steelboilicetime)
-    if (abs(steelboilicevoltage(i)-baseline)>threshold)
-        starttime=i;
-        break
-    end
-end
-%create new variables that start from t = 0 and only contain event data
-newsteelboilicetime=steelboilicetime(starttime:length(steelboilicetime))-steelboilicetime(starttime);
-newsteelboilicevoltage=steelboilicevoltage(starttime:length(steelboilicetime));
-TstartSBI = steelboilicetime(starttime);
-VstartSBI = steelboilicevoltage(starttime);
+%ice water to boiling water
+steeliceboilarray = pros(steeliceboiltime,steeliceboilvoltage,.5);
+alumiceboilarray = pros(alumiceboiltime,alumiceboilvoltage,.5);
+bareiceboilarray = pros(bareiceboiltime,bareiceboilvoltage,1.41);
 
-%smooth data, locate peaks and valleys
-zerovoltage = newsteelboilicevoltage-1.56;
-span=50; %size of the averaging window
-mask=ones(span,1)/span;
-convoltage=conv(zerovoltage,mask,'same'); %finds moving average and cleans up noise
-th=.008;
-[pks,dep,pidx,didx]=peakdet(convoltage,th,'threshold');
+%plottting boiling water to ice water transfer
+
+%NOTE! Individual points are NOT being plotted - they form a thick line and
+%it looks terrible.
+figure(8)
+plot(steelboilicearray(:,1),steelboilicearray(:,2),alumboilicearray(:,1),alumboilicearray(:,2),bareboilicearray(:,1),bareboilicearray(:,2))
+title('(Method 1) Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Voltage (V)')
+legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
+grid on
+
+%plotting ice water to boiling water transfer
+figure(9)
+plot(steeliceboilarray(:,1),steeliceboilarray(:,2),alumiceboilarray(:,1),alumiceboilarray(:,2),bareiceboilarray(:,1),bareiceboilarray(:,2))
+title('(Method 1) Thermocouples - Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Voltage (V)')
+legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
+grid on
+
+
+
+
+
+
+
+
+
+
 
 
 
