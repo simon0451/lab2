@@ -233,7 +233,7 @@ figure(7)
 plot(steelboilicearray(:,1),steelboilicearray(:,2),alumboilicearray(:,1),alumboilicearray(:,2),bareboilicearray(:,1),bareboilicearray(:,2))
 title('(Method 1) Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
-ylabel('Voltage (V)')
+ylabel('Temperature (C)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
 grid on
 
@@ -242,7 +242,7 @@ figure(8)
 plot(steeliceboilarray(:,1),steeliceboilarray(:,2),alumiceboilarray(:,1),alumiceboilarray(:,2),bareiceboilarray(:,1),bareiceboilarray(:,2))
 title('(Method 1) Thermocouples - Ice Water to Boiling Water')
 xlabel('Time (s)')
-ylabel('Voltage (V)')
+ylabel('Temperature (C)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
 grid on
 
@@ -250,7 +250,7 @@ figure(9)
 plot(steelboilicearray2(:,1),steelboilicearray2(:,2),alumboilicearray2(:,1),alumboilicearray2(:,2),bareboilicearray2(:,1),bareboilicearray2(:,2))
 title('(Method 2) Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
-ylabel('Voltage (V)')
+ylabel('Temperature (C)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
 grid on
 
@@ -259,7 +259,7 @@ figure(10)
 plot(steeliceboilarray2(:,1),steeliceboilarray2(:,2),alumiceboilarray2(:,1),alumiceboilarray2(:,2),bareiceboilarray2(:,1),bareiceboilarray2(:,2))
 title('(Method 2) Thermocouples - Ice Water to Boiling Water')
 xlabel('Time (s)')
-ylabel('Voltage (V)')
+ylabel('Temperature (C)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
 grid on
 %% Dynamic Calibration Part 5
@@ -272,10 +272,15 @@ bareiceairvoltage = xlsread('Michalak_Popecki_Rose.xlsx',5,'B9:B12008');
 bareiceairvoltage = smooth(bareiceairvoltage,1001);
 bareiceairarray = pros(bareiceairtime,bareiceairvoltage,2.19);
 %bareiceairtemperature = ((bareiceairarray(:,2))-betaHat(1))/betaHat(2); %betahat 2 is the slope
-tcv = (bareiceairvo-betaHat(1))/betaHat(2); %°C
+bareiceairarrayv = bareiceairarray(:,2); %equation was made to work with mV, so *1000 to compensate
 
+rt = 26; %°C, from my lab notebook
+for i = 1:1:length(bareiceairarray(:,1))
+    roomtemp(i) = rt;
+end
+    
 figure(9)
-plot(bareiceairarray(:,1),tcv)
+plot(bareiceairarray(:,1),bare,bareiceairarray(:,1),roomtemp,'--')
 title('Bare Wire Thermocouple - Ice Water to Air')
 xlabel('Time (s)')
 ylabel('Temperature (C)')

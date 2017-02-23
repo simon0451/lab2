@@ -272,15 +272,18 @@ bareiceairvoltage = xlsread('Michalak_Popecki_Rose.xlsx',5,'B9:B12008');
 bareiceairvoltage = smooth(bareiceairvoltage,1001);
 bareiceairarray = pros(bareiceairtime,bareiceairvoltage,2.19);
 %bareiceairtemperature = ((bareiceairarray(:,2))-betaHat(1))/betaHat(2); %betahat 2 is the slope
-test = bareiceairarray(:,2); %equation was made to work with mV, so *1000 to compensate
 
-tcv = (test*1000-betaHat(1))/betaHat(2); %°C
-
+rt = 26; %°C, from my lab notebook
+for i = 1:1:length(bareiceairarray(:,1))
+    roomtemp(i) = rt;
+end
+    
 figure(9)
-plot(bareiceairarray(:,1),tcv)
+plot(bareiceairarray(:,1),bareiceairarray(:,2),bareiceairarray(:,1),roomtemp,'--')
 title('Bare Wire Thermocouple - Ice Water to Air')
 xlabel('Time (s)')
 ylabel('Temperature (C)')
+legend('Bare Wire Thermocouple Temperature','Room Temperature','location','southeast')
 grid on
 
 
