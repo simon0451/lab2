@@ -1,7 +1,7 @@
 function [output] = slide(time,voltage)
 %outputs the maximum slope and its position in the matrix
 %time is x, voltage is y
-load lab2part1variables.mat
+
 
 for i = 1:1:(length(time)-51)
     limit = (i+51);
@@ -13,13 +13,11 @@ for i = 1:1:(length(time)-51)
     posslopes = abs(slopes);
     [~,pos] = max(posslopes);
     maxslope = slopes(pos);
+    disp(pos)
+    newtime = time(pos:length(time))-
+    newvoltage = (voltage(pos):voltage(length(time)));
     
-    newtime = time(pos:length(time));
-    newvoltage = voltage(pos:length(voltage));
-    
-    tcv = (newvoltage*1000-betaHat(1))/betaHat(2); %°C
-    
-    output = [newtime,tcv];
+    output = [newtime,newvoltage];
 end
 
 
