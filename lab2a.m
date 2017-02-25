@@ -132,7 +132,7 @@ end
 zeroC = zeroC';
 
 figure(4)
-plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',zeroC,Thermo25Temperature,'bo',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
+plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'b--',ThermistorTemperature,CIofMeasurementNEG,'r--',zeroC,Thermo25Temperature,'bo',ThermistorTemperature,CIofFitNEG,'b--',ThermistorTemperature,CIofMeasurementPOS,'r--')
 title('Thermocouple Response vs. Thermistor Response')
 ylabel('Temperature From Thermocouple (°C)')
 xlabel('Temperature From Thermistor (°C)')
@@ -287,11 +287,20 @@ lnGammaalumboilice2 = timecon(alumboilicearray2(:,2),alumboiliceTfinal);
 lnGammabareboilice = timecon(bareboilicearray(:,2),bareboiliceTfinal);
 lnGammabareboilice2 = timecon(bareboilicearray2(:,2),bareboiliceTfinal);
 
-tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
+%tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
 
+%Making a best fit line for the lnGamma lines
+
+%xdata: *steelboilice*array(:,1)
+%ydata: lnGamma*lnGammasteelboilice*(2)
+predictedlnGammasteelboilice = gammafit(steelboilicearray(:,1),steelboilicearray(:,2));
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part i
 figure(21)
 subplot(3,1,1)
-plot(steelboilicearray(:,1),(lnGammasteelboilice))
+plot(steelboilicearray(:,1),lnGammasteelboilice,predictedlnGammasteelboilice(:,1),predictedlnGammasteelboilice(:,2))
 title('5 /sigma Method, Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
 ylabel('ln(\Gamma)')

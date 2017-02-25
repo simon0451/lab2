@@ -20,7 +20,7 @@ for i=1:length(time)
 end
 %create new variables that start from t = 0 and only contain event data
 newtime=time(starttime:length(time))-time(starttime); %the commented out portion starts time t=0 at the event initiation point
-time = time-time(starttime);
+time = time-time(starttime); %shifts time such that t=0 
 newvoltage=voltage(starttime:length(time));
 
 Tstart = time(starttime);
