@@ -207,7 +207,7 @@ bareiceboilvoltage = smooth(bareiceboilvoltage,51);
 %time (usually the idle time in the beginning is not cut off like it should
 %be). The tuning factor should be adjusted to the poin where the input
 %function when drawn on a plot, "snaps" to the starting point.
-steelboilicearray = pros(steelboilicetime,steelboilicevoltage,1); %outputs [time,voltage, start time tuning factor] of the input using method 1
+steelboilicearray = pros(steelboilicetime,steelboilicevoltage,1); %outputs [time,temperature, start time tuning factor] of the input using method 1
 alumboilicearray = pros(alumboilicetime,alumboilicevoltage,.5);
 bareboilicearray = pros(bareboilicetime,bareboilicevoltage,0);
 %ice water to boiling water
@@ -225,6 +225,41 @@ steeliceboilarray2 = slide(steeliceboiltime,steeliceboilvoltage);
 alumiceboilarray2 = slide(alumiceboiltime,alumiceboilvoltage);
 bareiceboilarray2 = slide(bareiceboiltime,bareiceboilvoltage);
 
+%finding Tfinal for the bare wire thermocouples going from ice water to
+%boiling water
+%Time measurements are in .001 second intervals
+%averaging the last 2 seconds = last 2,000 measurements of the array - 1.5
+%s = 1,500 measurements
+twosec = 1500;
+bareiceboilT = bareiceboilarray(:,2);
+lbareiceboilT = length(bareiceboilT); %some number like 3612 - the length of the vector
+bareiceboildatastart = lbareiceboilT-twosec; %the position in the array where we begin looking at data
+bareiceboilrange = bareiceboilT(bareiceboildatastart:lbareiceboilT);
+bareiceboilTfinal = mean(bareiceboilrange); %the average temperature of the boiling water bath, celcius
+
+%for boiling water to ice water
+bareboiliceT =bareboilicearray(:,2);
+lbareboiliceT = length(bareboiliceT);
+bareboilicedatastart = lbareboiliceT-twosec;
+bareboilicerange = bareboiliceT(bareboilicedatastart:lbareboiliceT);
+bareboiliceTfinal = mean(bareboilicerange); %degrees celcius
+
+%embedded thermocouoples final temperatures
+%using the final value instead of averaging
+
+%for ice water to boiling water
+steeliceboilT = steeliceboilarray(:,2);
+steeliceboilTfinal = steeliceboilT(end);
+
+alumiceboilT = alumiceboilarray(:,2);
+alumiceboilTfinal = alumiceboilT(end);
+
+%for boiling water to ice water
+steelboiliceT = steelboilicearray(:,2);
+steelboiliceTfinal = steelboiliceT(end);
+
+alumboiliceT = alumboilicearray(:,2);
+alumboiliceTfinal = alumboiliceT(end);
 
 %plottting boiling water to ice water transfer
 %NOTE! Individual points are NOT being plotted - they form a thick line and
@@ -262,6 +297,49 @@ xlabel('Time (s)')
 ylabel('Temperature (C)')
 legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
 grid on
+
+%% Dynamic Calibration Part 2
+load d1variables.mat
+%solving for the time constants
+
+%ice water to boiling water
+%the timecon function takes an input in C but works in K, the answer is
+%normalized, so the temperature units do not matter - it is to avoid a
+%complex number answer
+
+%The resutls are the log natural of Gamma
+lnGammasteeliceboil = timecon(steeliceboilarray(:,2),steeliceboilTfinal); %(the temperature function in C, the final temperature)
+lnGammasteeliceboil2 = timecon(steeliceboilarray2(:,2),steeliceboilTfinal);
+
+lnGammaalumiceboil = timecon(alumiceboilarray(:,2),alumiceboilTfinal);
+lnGammaalumiceboil2 = timecon(alumiceboilarray2(:,2),alumiceboilTfinal);
+
+lnGammabareiceboil = timecon(bareiceboilarray(:,2),bareiceboilTfinal);
+lnGammabareiceboil2 = timecon(bareiceboilarray2(:,2),bareiceboilTfinal);
+
+%the same results for the transition from boiling water to ice water
+lnGammasteelboilice = timecon(steelboilicearray(:,2),steelboiliceTfinal); %%%%%%%%%%%%%%%%%%%%%%
+lnGammasteelboilice2 = timecon(steelboilicearray2(:,2),steelboiliceTfinal);
+
+lnGammaalumboilice = timecon(alumboilicearray(:,2),alumboiliceTfinal);
+lnGammaalumboilice2 = timecon(alumboilicearray2(:,2),alumboiliceTfinal);
+
+lnGammabareboilice = timecon(bareboilicearray(:,2),bareboiliceTfinal);
+lnGammabareboilice2 = timecon(bareboilicearray2(:,2),bareboiliceTfinal);
+
+tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
+
+figure(21)
+plot(steelboilicearray(:,1),(steelboilicearray(:,2)),steelboilicearray(:,1),(lnGammasteelboilice))
+title('Method 1, Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('ln\Gamma')
+legend('Steel Embedded Thermocouple','lnGamma','location','southeast')
+grid on
+
+
+
+
 %% Dynamic Calibration Part 5
 load lab2part1variables.mat
 
@@ -278,7 +356,7 @@ for i = 1:1:length(bareiceairarray(:,1))
     roomtemp(i) = rt;
 end
     
-figure(9)
+figure(51)
 plot(bareiceairarray(:,1),bareiceairarray(:,2),bareiceairarray(:,1),roomtemp,'--')
 title('Bare Wire Thermocouple - Ice Water to Air')
 xlabel('Time (s)')
