@@ -92,18 +92,18 @@ ymax = 106;
 axis ([xmin xmax ymin ymax])
 legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
 
-% figure(3)
-% plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
-% title('Zoomed-In Thermocouple Response vs. Thermistor Response')
-% ylabel('Temperature From Thermocouple (°C)')
-% xlabel('Temperature From Thermistor (°C)')
-% grid on
-% xmin = 30;
-% xmax = 50;
-% ymin = 30;
-% ymax = 50;
-% axis ([xmin xmax ymin ymax])
-% legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
+figure(3)
+plot(ThermistorTemperature,ThermocoupleTemperature,'o',ThermistorTemperature,p3bfyvalues,'--',ThermistorTemperature,CIofFitPOS,'y--',ThermistorTemperature,CIofMeasurementNEG,'r--',ThermistorTemperature,CIofFitNEG,'y--',ThermistorTemperature,CIofMeasurementPOS,'r--')
+title('Zoomed-In Thermocouple Response vs. Thermistor Response')
+ylabel('Temperature From Thermocouple (°C)')
+xlabel('Temperature From Thermistor (°C)')
+grid on
+xmin = 30;
+xmax = 50;
+ymin = 30;
+ymax = 50;
+axis ([xmin xmax ymin ymax])
+legend('Thermocouple Output','Linear Least Squares Fit','Confidence Interval of Fit','Confidence Interval of Measurement','location','southeast')
 
 %% Static Calibration Part 4
 Thermo25Temperature = (TCV-betaHat(1))/betaHat(2); %°C
@@ -260,6 +260,63 @@ steelboiliceTfinal = steelboiliceT(end);
 
 alumboiliceT = alumboilicearray(:,2);
 alumboiliceTfinal = alumboiliceT(end);
+
+%plottting boiling water to ice water transfer
+%NOTE! Individual points are NOT being plotted - they form a thick line and
+%it looks terrible.
+figure(11)
+plot(steelboilicearray(:,1),steelboilicearray(:,2))
+title('(Method 1) Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Steel Embedded Thermocouple','Bare Wire Thermocouple')
+grid on
+
+figure(12)
+plot(alumboilicearray(:,1),alumboilicearray(:,2))
+title('(Method 1) Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Aluminum Embedded Thermocouple')
+grid on
+
+figure(13)
+plot(bareboilicearray(:,1),bareboilicearray(:,2))
+title('(Method 1) Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Bare Wire Thermocouple')
+grid on
+
+%plotting ice water to boiling water transfer
+figure(14)
+plot(steeliceboilarray(:,1),steeliceboilarray(:,2),bareiceboilarray(:,1),bareiceboilarray(:,2))
+title('(Method 1) Thermocouples - Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
+grid on
+
+,alumiceboilarray(:,1),alumiceboilarray(:,2),
+figure(9)
+plot(steelboilicearray2(:,1),steelboilicearray2(:,2),alumboilicearray2(:,1),alumboilicearray2(:,2),bareboilicearray2(:,1),bareboilicearray2(:,2))
+title('(Method 2) Thermocouples - Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple')
+grid on
+
+%plotting ice water to boiling water transfer
+figure(10)
+plot(steeliceboilarray2(:,1),steeliceboilarray2(:,2),alumiceboilarray2(:,1),alumiceboilarray2(:,2),bareiceboilarray2(:,1),bareiceboilarray2(:,2))
+title('(Method 2) Thermocouples - Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (C)')
+legend('Steel Embedded Thermocouple','Aluminum Embedded Thermocouple','Bare Wire Thermocouple','location','southeast')
+grid on
+
+%% Dynamic Calibration Part 2
+load d1variables.mat
 %solving for the time constants
 
 %ice water to boiling water
@@ -292,7 +349,7 @@ tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
 figure(21)
 subplot(3,1,1)
 plot(steelboilicearray(:,1),(lnGammasteelboilice))
-title('5 /sigma Method, Thermocouples - Boiling Water to Ice Water')
+title('Method 1, Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
 ylabel('ln(\Gamma)')
 legend('Natural log of Gamma','location','northeast')
@@ -302,128 +359,6 @@ ymin = -5;
 ymax = 1;
 axis ([xmin xmax ymin ymax])
 grid on
-
-%PLOTTING AXES PARAMETERS
-xmin = -.75;
-xmax = 1.2;
-ymin = -10;
-ymax = 110;
-
-%plottting boiling water to ice water transfer
-%NOTE! Individual points are NOT being plotted - they form a thick line and
-%it looks terrible.
-figure(11)
-plot(steelboilicearray(:,1),steelboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(12)
-plot(alumboilicearray(:,1),alumboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(13)
-plot(bareboilicearray(:,1),bareboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple')
-grid on
-axis ([xmin xmax ymin ymax])
-
-%plotting ice water to boiling water transfer
-figure(14)
-plot(steeliceboilarray(:,1),steeliceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple','location','southeast')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(15)
-plot(alumiceboilarray(:,1),alumiceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple','location','southeast')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(16)
-plot(bareiceboilarray(:,1),bareiceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple','location','southeast')
-grid on
-axis ([xmin xmax ymin ymax])
-
-%method 2
-figure(16)
-plot(steelboilicearray2(:,1),steelboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(17)
-plot(alumboilicearray2(:,1),alumboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(18)
-plot(bareboilicearray2(:,1),bareboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple')
-grid on
-axis ([xmin xmax ymin ymax])
-
-%plotting ice water to boiling water transfer
-figure(19)
-plot(steeliceboilarray2(:,1),steeliceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple','location','southeast')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(110)
-plot(alumiceboilarray2(:,1),alumiceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple','location','southeast')
-grid on
-axis ([-inf inf ymin ymax])
-
-figure(111)
-plot(bareiceboilarray2(:,1),bareiceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
-xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple','location','southeast')
-grid on
-axis ([xmin xmax ymin ymax])
-
-
 
 
 

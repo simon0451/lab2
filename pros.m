@@ -19,8 +19,8 @@ for i=1:length(time)
     end
 end
 %create new variables that start from t = 0 and only contain event data
-newtime=time(starttime:length(time)); %-time(starttime); %the commented out portion starts time t=0 at the event initiation point
-
+newtime=time(starttime:length(time))-time(starttime); %the commented out portion starts time t=0 at the event initiation point
+time = time-time(starttime);
 newvoltage=voltage(starttime:length(time));
 
 Tstart = time(starttime);
@@ -28,10 +28,10 @@ Tstart = time(starttime);
 Vstart = voltage(starttime);
 
 %when it is more useful to output a temperature instead of voltage
-tcv = (newvoltage*1000-betaHat(1))/betaHat(2); %°C
+tcv = (voltage*1000-betaHat(1))/betaHat(2); %°C newvoltage for trimmed, voltage for untrimmed
 
 
 % output = [tout,vout];
-output = [newtime,tcv]; %trimmed: newtime,newvoltage. untrimmed: time,voltage
+output = [time,tcv]; %trimmed: newtime,newvoltage. untrimmed: time,voltage
 end
 

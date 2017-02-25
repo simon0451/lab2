@@ -3,9 +3,6 @@ function [logGamma] = timecon(Tarray,Tfinal)
 Tkel = Tarray;%+273.15;
 Tfinal = Tfinal;%+273.15;
 Gamma = (Tfinal-Tkel)./(Tfinal-Tkel(1));
-disp(Gamma(1))
-disp(Gamma(2000))
-disp(Gamma(end))
 logGamma = log(Gamma);
 
 

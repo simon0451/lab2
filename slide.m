@@ -15,11 +15,12 @@ for i = 1:1:(length(time)-51)
     maxslope = slopes(pos);
     
     newtime = time(pos:length(time));
+    time = time-time(pos);
     newvoltage = voltage(pos:length(voltage));
     
-    tcv = (newvoltage*1000-betaHat(1))/betaHat(2); %°C
+    tcv = (voltage*1000-betaHat(1))/betaHat(2); %°C newvoltage for trimmed, voltage for untrimmed
     
-    output = [newtime,tcv];
+    output = [time,tcv];
 end
 
 
