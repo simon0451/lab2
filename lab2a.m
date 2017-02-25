@@ -330,11 +330,17 @@ lnGammabareboilice2 = timecon(bareboilicearray2(:,2),bareboiliceTfinal);
 tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
 
 figure(21)
-plot(steelboilicearray(:,1),(steelboilicearray(:,2)),steelboilicearray(:,1),(lnGammasteelboilice))
+subplot(3,1,1)
+plot(steelboilicearray(:,1),(lnGammasteelboilice))
 title('Method 1, Thermocouples - Boiling Water to Ice Water')
 xlabel('Time (s)')
-ylabel('ln\Gamma')
-legend('Steel Embedded Thermocouple','lnGamma','location','southeast')
+ylabel('ln(\Gamma)')
+legend('Natural log of Gamma','location','northeast')
+xmin = -5;
+xmax = 50;
+ymin = -5;
+ymax = 1;
+axis ([xmin xmax ymin ymax])
 grid on
 
 
