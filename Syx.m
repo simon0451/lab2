@@ -14,6 +14,7 @@ yiyci = (ynew-yfromline).^2;
 sumyiyci = sum(yiyci);
 Syx = (sumyiyci/(length(ynew)-1))^.5; %standard error of the fit
 
+disp(Syx)
 output = Syx;
 
 end

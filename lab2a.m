@@ -872,12 +872,6 @@ bibsyx2 = Syx(bareiceboilarray2(:,1),bareiceboilarray2(:,2));
 bibss2 = num2str(bibsyx2,3);
 bibst2 = strcat('Syx = ',bibss2);
 
-
-
-
-
-
-
 %plot residuals on top of each other
 %steel boil ice residuals
 figure(41)
@@ -1032,8 +1026,206 @@ ylabel('Temperature (C)')
 legend('Bare Wire Thermocouple Temperature','Room Temperature','location','southeast')
 grid on
 
+%% Funtions used
 
-
+% function [output] = middlefit(xdata,ydata) %x input is time, y input is temperature from data
+% the inputs are shifted such that the 0 value of the xdata is the beginning
+% of the event.
+% 
+% this function provides an output array containing the information to be
+% plotted on the middle plot of the 3-plot subplot
+% 
+% gamma=(ydata(end)-ydata)/(ydata(end)-ydata(1));
+% for i=1:length(xdata)
+%     if gamma(i)<0.05
+%         endgamma=i;
+%         break
+%     end
+% end
+% 
+% lngamma=log(gamma(1:endgamma));
+% num=lngamma.*xdata(1:endgamma);
+% den=xdata(1:endgamma).^2;
+% ao=sum(num)/sum(den);
+% 
+% 
+% Tfinal = ydata(end); %the final temperature of the data
+% 
+% Tinitloc = find(xdata==0); %the location in the array where time is zero
+% 
+% Tinitial = ydata(Tinitloc); %the Temperature value where time is zero
+% 
+% tau = (1/ao)*-1;
+% 
+% Tpred = Tfinal - (Tfinal-Tinitial)*exp(-xdata/tau);
+% 
+% 
+% output = [xdata,ydata,xdata,Tpred]; %[data time, data Temperature, predicted time (same as data time), predicted Temperature]
+% 
+% 
+% end
+% 
+% function [output] = Syx(xdata,ydata)
+% Computers the Syx of a data set
+% 
+% tstart = find(xdata==0,1);
+% xnew = xdata(tstart:length(xdata));
+% ynew = ydata(tstart:length(ydata));
+% 
+% fitdata = polyfit(xnew,ynew,1);
+% yfromline = fitdata(1)*xnew+fitdata(2);
+% 
+% Yc = yfromline; %The value of y predicted by the polynomial equation for a given value of x
+% tvp = 2.262; %For N = 10, 95% confidence
+% yiyci = (ynew-yfromline).^2;
+% sumyiyci = sum(yiyci);
+% Syx = (sumyiyci/(length(ynew)-1))^.5; %standard error of the fit
+% 
+% disp(Syx)
+% output = Syx;
+% 
+% end
+% 
+% function [output] = p2(xdata,ydata)
+% this function outputs an array with ready to plot info for the two curves
+% and the residuals
+% 
+% where xdata is the time and ydata is the temperature
+% 
+% Tfinal = ydata(end); %the final temperature of the data
+% Tinitloc = find(xdata==0); %the location in the array where time is zero
+% Tinitial = ydata(Tinitloc); %the Temperature value where time is zero
+% Tattau = Tinitial+.632*(Tfinal - Tinitial); %this is the temperature at the point where t is equal to tau
+% disp(Tattau)
+% 
+% find the time at which the temperature is equal to Tattau - this is our
+% time constant tau
+% 
+% conditional statement 
+% if Tfinal<Tinitial
+%     tauindex = find(ydata<=Tattau,1); %the location of tau in the array
+% else
+%     tauindex = find(ydata>=Tattau,1);
+% end
+%     
+% 
+% tau = xdata(tauindex);
+% 
+% Tpred = Tfinal-(Tfinal-Tinitial)*exp(-xdata/tau);
+% 
+% residuals = ydata-Tpred;
+% 
+% output = [xdata,ydata,xdata,Tpred,xdata,residuals]; %[data time, data Temperature, predicted time (same as data time), predicted Temperature]
+% 
+% end
+% 
+% function [output] = pros(time,voltage,startingtime)
+% load lab2part1variables.mat
+% offset = 0;
+% 
+% for i=1:length(time)
+%     if time(i)>startingtime
+%         basetime=i;
+%         break
+%     end
+% end
+% baseline=mean(voltage(1:basetime)); %average of data in baseline region
+% basedev=std(voltage(1:basetime)); %standard deviation of baseline region
+% threshold=5*basedev; %threshold to define the start of an event - 5 sigma
+% 
+% for i=1:length(time)
+%     if (abs(voltage(i)-baseline)>threshold)
+%         starttime=i;
+%         break
+%     end
+% end
+% create new variables that start from t = 0 and only contain event data
+% newtime=time(starttime:length(time))-time(starttime); %the commented out portion starts time t=0 at the event initiation point
+% time = time-time(starttime); %shifts time such that t=0 
+% newvoltage=voltage(starttime:length(time));
+% 
+% Tstart = time(starttime);
+% 
+% Vstart = voltage(starttime);
+% 
+% when it is more useful to output a temperature instead of voltage
+% tcv = (voltage*1000-betaHat(1))/betaHat(2); %°C newvoltage for trimmed, voltage for untrimmed
+% 
+% 
+% output = [tout,vout];
+% output = [time,tcv]; %trimmed: newtime,newvoltage. untrimmed: time,voltage
+% end
+% 
+% function [output] = slide(time,voltage)
+% outputs the maximum slope and its position in the matrix
+% time is x, voltage is y
+% load lab2part1variables.mat
+% 
+% for i = 1:1:(length(time)-51)
+%     limit = (i+51);
+%     tmask = time(i:limit);
+%     vmask = voltage(i:limit);
+%     fit = polyfit(tmask,vmask,1);
+%     m = fit(1);
+%     slopes(i) = m; %an array of slopes at each point in the line
+%     posslopes = abs(slopes);
+%     [~,pos] = max(posslopes);
+%     maxslope = slopes(pos);
+%     
+%     newtime = time(pos:length(time));
+%     time = time-time(pos);
+%     newvoltage = voltage(pos:length(voltage));
+%     
+%     tcv = (voltage*1000-betaHat(1))/betaHat(2); %°C newvoltage for trimmed, voltage for untrimmed
+%     
+%     output = [time,tcv];
+% end
+% 
+% 
+% 
+% end
+% 
+% function [output] = gammafit(xdata,ydata) %x is time
+% gamma=(ydata(end)-ydata)/(ydata(end)-ydata(1));
+% for i=1:length(xdata)
+%     if gamma(i)<0.05
+%         endgamma=i;
+%         break
+%     end
+% end
+% 
+% lngamma=log(gamma(1:endgamma));
+% num=lngamma.*xdata(1:endgamma);
+% den=xdata(1:endgamma).^2;
+% ao=sum(num)/sum(den);
+% predictln=ao*xdata(1:endgamma);
+% figure(4000)
+% plot(xdata(1:endgamma),lngamma,xdata(1:endgamma),predictln)
+% 
+% output = [xdata(1:endgamma),lngamma,xdata(1:endgamma),predictln];
+% 
+% 
+% 
+% end
+% 
+% function [output] = bottomfit(middlefit)
+% This provides an array to plot the residuals vs. time
+% 
+% the residuals are the difference between the data and the prediction
+% this function will use the results of "middlefit.m" as an input
+% 
+% datay = middlefit(:,2); %the second column of the middlefit output array
+% predy = middlefit(:,4); %the predicted y values
+% xdata = middlefit(:,1); %remember that the xvalues are the same for both arrays
+% 
+% residuals = datay - predy; %an array of differences between the actual data and the prediction
+% 
+% output = [xdata,residuals];
+% 
+% 
+% 
+% end
+% 
 
 
 
