@@ -5,9 +5,6 @@
 %ME 646
 %Lab 2
 
-%REQUIRED FILES:
-%lab2.mat
-
 %% Static Calibration Part 2
 clear all, close all;
 load lab2.mat
