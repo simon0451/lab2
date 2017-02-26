@@ -37,8 +37,7 @@ yy = betaHat(1) + betaHat(2)*xx; %betaHat(1) is the Y-intercept, and betaHat(2) 
 % plot the points (data) for which we found the best fit
 m = num2str(betaHat(2),3);
 b = num2str(betaHat(1),3);
-txt = strcat('y=',m,'x+',b);
-txt1 = strcat('Units: (mV)=(mV/°C)*(°C)+(mV)');
+txt = strcat('V (mV) =',m,' (mV/°C) x (°C)+',b,' (mV)');
 
 figure(1)
 plot(ThermistorTemperature,ThermocoupleVoltage,'o',xx,yy,'--')
@@ -51,8 +50,7 @@ xmax = 105;
 ymin = -100;
 ymax = 1100;
 axis ([xmin xmax ymin ymax])
-text(.55*xmax,.18*ymax,txt)
-text(.55*xmax,.13*ymax,txt1)
+text(.45*xmax,.18*ymax,txt)
 legend('Thermocouple Output','Linear Least Squares Fit','location','southeast')
 
 %% Static Calibration Part 3
@@ -260,178 +258,694 @@ steelboiliceTfinal = steelboiliceT(end);
 
 alumboiliceT = alumboilicearray(:,2);
 alumboiliceTfinal = alumboiliceT(end);
-%solving for the time constants
 
-%ice water to boiling water
-%the timecon function takes an input in C but works in K, the answer is
-%normalized, so the temperature units do not matter - it is to avoid a
-%complex number answer
+%% STEEL FROM BOILING WATER TO ICE WATER
+partisbi = gammafit(steelboilicearray(:,1),steelboilicearray(:,2));
+partiisbi = middlefit(steelboilicearray(:,1),steelboilicearray(:,2));
+partiiisbi = bottomfit(partiisbi);
+D3sbi = p2(steelboilicearray(:,1),steelboilicearray(:,2));
 
-%The resutls are the log natural of Gamma
-lnGammasteeliceboil = timecon(steeliceboilarray(:,2),steeliceboilTfinal); %(the temperature function in C, the final temperature)
-lnGammasteeliceboil2 = timecon(steeliceboilarray2(:,2),steeliceboilTfinal);
+figure(31)
+subplot(2,1,1)
+plot(D3sbi(:,1),D3sbi(:,2),D3sbi(:,3),D3sbi(:,4))
+title('5 \sigma Method, Steel Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction')
+grid on
+axis([-3 40 -10 110])
+subplot(2,1,2)
+plot(D3sbi(:,5),D3sbi(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 40 -20 20])
 
-lnGammaalumiceboil = timecon(alumiceboilarray(:,2),alumiceboilTfinal);
-lnGammaalumiceboil2 = timecon(alumiceboilarray2(:,2),alumiceboilTfinal);
-
-lnGammabareiceboil = timecon(bareiceboilarray(:,2),bareiceboilTfinal);
-lnGammabareiceboil2 = timecon(bareiceboilarray2(:,2),bareiceboilTfinal);
-
-%the same results for the transition from boiling water to ice water
-lnGammasteelboilice = timecon(steelboilicearray(:,2),steelboiliceTfinal); %%%%%%%%%%%%%%%%%%%%%%
-lnGammasteelboilice2 = timecon(steelboilicearray2(:,2),steelboiliceTfinal);
-
-lnGammaalumboilice = timecon(alumboilicearray(:,2),alumboiliceTfinal);
-lnGammaalumboilice2 = timecon(alumboilicearray2(:,2),alumboiliceTfinal);
-
-lnGammabareboilice = timecon(bareboilicearray(:,2),bareboiliceTfinal);
-lnGammabareboilice2 = timecon(bareboilicearray2(:,2),bareboiliceTfinal);
-
-%tausteelboilice = -(steelboilicearray(:,1))./(lnGammasteelboilice);
-
-%Making a best fit line for the lnGamma lines
-
-%xdata: *steelboilice*array(:,1)
-%ydata: lnGamma*lnGammasteelboilice*(2)
-predictedlnGammasteelboilice = gammafit(steelboilicearray(:,1),steelboilicearray(:,2));
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part i
 figure(21)
 subplot(3,1,1)
-plot(steelboilicearray(:,1),lnGammasteelboilice,predictedlnGammasteelboilice(:,1),predictedlnGammasteelboilice(:,2))
-title('5 /sigma Method, Thermocouples - Boiling Water to Ice Water')
+plot(partisbi(:,1),partisbi(:,2),partisbi(:,3),partisbi(:,4))
+title('5 \sigma Method, Steel Embedded Thermocouple, Boiling Water to Ice Water')
 xlabel('Time (s)')
 ylabel('ln(\Gamma)')
-legend('Natural log of Gamma','location','northeast')
-xmin = -5;
-xmax = 50;
-ymin = -5;
-ymax = 1;
-axis ([xmin xmax ymin ymax])
+legend('Data','Prediction','location','northeast')
 grid on
-
-%PLOTTING AXES PARAMETERS
-xmin = -.75;
-xmax = 1.2;
-ymin = -10;
-ymax = 110;
-
-%plottting boiling water to ice water transfer
-%NOTE! Individual points are NOT being plotted - they form a thick line and
-%it looks terrible.
-figure(11)
-plot(steelboilicearray(:,1),steelboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
+axis([-5 30 -inf 1])
+subplot(3,1,2)
+plot(partiisbi(:,1),partiisbi(:,2),partiisbi(:,3),partiisbi(:,4))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 30 -10 110])
 grid on
-axis ([-inf inf ymin ymax])
-
-figure(12)
-plot(alumboilicearray(:,1),alumboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
+subplot(3,1,3)
+plot(partiiisbi(:,1),partiiisbi(:,2))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple')
+ylabel('Residuals (°C)')
 grid on
-axis ([-inf inf ymin ymax])
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 30 -20 20])
 
-figure(13)
-plot(bareboilicearray(:,1),bareboilicearray(:,2))
-title('Five \sigma Starting Method, Boiling Water to Ice Water')
+%USING METHOD 2
+partisbi2 = gammafit(steelboilicearray2(:,1),steelboilicearray2(:,2));
+partiisbi2 = middlefit(steelboilicearray2(:,1),steelboilicearray2(:,2));
+partiiisbi2 = bottomfit(partiisbi2);
+D3sbi2 = p2(steelboilicearray2(:,1),steelboilicearray2(:,2));
+
+figure(32)
+subplot(2,1,1)
+plot(D3sbi2(:,1),D3sbi2(:,2),D3sbi2(:,3),D3sbi2(:,4))
+title('Max Slope Method, Steel Embedded Thermocouple, Boiling Water to Ice Water')
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple')
+ylabel('Temperature (°C)')
+legend('Data','Prediction')
 grid on
-axis ([xmin xmax ymin ymax])
-
-%plotting ice water to boiling water transfer
-figure(14)
-plot(steeliceboilarray(:,1),steeliceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
+axis([-3 40 -10 110])
+subplot(2,1,2)
+plot(D3sbi2(:,5),D3sbi2(:,6))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple','location','southeast')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
 grid on
-axis ([-inf inf ymin ymax])
+axis([-3 40 -20 20])
 
-figure(15)
-plot(alumiceboilarray(:,1),alumiceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
+figure(22)
+subplot(3,1,1)
+plot(partisbi2(:,1),partisbi2(:,2),partisbi2(:,3),partisbi2(:,4))
+title('Max Slope Method, Steel Embedded Thermocouple, Boiling Water to Ice Water')
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple','location','southeast')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
 grid on
-axis ([-inf inf ymin ymax])
-
-figure(16)
-plot(bareiceboilarray(:,1),bareiceboilarray(:,2))
-title('Five \sigma Starting Method, Ice Water to Boiling Water')
+axis([-5 30 -inf 1])
+subplot(3,1,2)
+plot(partiisbi2(:,1),partiisbi2(:,2),partiisbi2(:,3),partiisbi2(:,4))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple','location','southeast')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 30 -10 110])
 grid on
-axis ([xmin xmax ymin ymax])
-
-%method 2
-figure(16)
-plot(steelboilicearray2(:,1),steelboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
+subplot(3,1,3)
+plot(partiiisbi2(:,1),partiiisbi2(:,2))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple')
+ylabel('Residuals (°C)')
 grid on
-axis ([-inf inf ymin ymax])
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 30 -20 20])
 
-figure(17)
-plot(alumboilicearray2(:,1),alumboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
+%% STEEL FROM ICE WATER TO BOILING WATER
+partisib = gammafit(steeliceboilarray(:,1),steeliceboilarray(:,2));
+partiisib = middlefit(steeliceboilarray(:,1),steeliceboilarray(:,2));
+partiiisib = bottomfit(partiisib);
+D3sib = p2(steeliceboilarray(:,1),steeliceboilarray(:,2));
+
+figure(33)
+subplot(2,1,1)
+plot(D3sib(:,1),D3sib(:,2),D3sib(:,3),D3sib(:,4))
+title('5 \sigma Method, Steel Embedded Thermocouple, Ice Water to Boiling Water')
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
 grid on
-axis ([-inf inf ymin ymax])
-
-figure(18)
-plot(bareboilicearray2(:,1),bareboilicearray2(:,2))
-title('Max Slope Onset Method, Boiling Water to Ice Water')
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3sib(:,5),D3sib(:,6))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
 grid on
-axis ([xmin xmax ymin ymax])
+axis([-3 20 -20 20])
 
-%plotting ice water to boiling water transfer
-figure(19)
-plot(steeliceboilarray2(:,1),steeliceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
+figure(23)
+subplot(3,1,1)
+plot(partisib(:,1),partisib(:,2),partisib(:,3),partisib(:,4))
+title('5 \sigma Method, Steel Embedded Thermocouple, Ice Water to Boiling Water')
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Steel Embedded Thermocouple','location','southeast')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
 grid on
-axis ([-inf inf ymin ymax])
-
-figure(110)
-plot(alumiceboilarray2(:,1),alumiceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiisib(:,1),partiisib(:,2),partiisib(:,3),partiisib(:,4))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Aluminum Embedded Thermocouple','location','southeast')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
 grid on
-axis ([-inf inf ymin ymax])
-
-figure(111)
-plot(bareiceboilarray2(:,1),bareiceboilarray2(:,2))
-title('Max Slope Onset Method, Ice Water to Boiling Water')
+subplot(3,1,3)
+plot(partiiisib(:,1),partiiisib(:,2))
 xlabel('Time (s)')
-ylabel('Temperature (C)')
-legend('Bare Wire Thermocouple','location','southeast')
+ylabel('Residuals (°C)')
 grid on
-axis ([xmin xmax ymin ymax])
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
 
+partisib2 = gammafit(steeliceboilarray2(:,1),steeliceboilarray2(:,2));
+partiisib2 = middlefit(steeliceboilarray2(:,1),steeliceboilarray2(:,2));
+partiiisib2 = bottomfit(partiisib2);
+D3sib2 = p2(steeliceboilarray2(:,1),steeliceboilarray2(:,2));
+
+figure(34)
+subplot(2,1,1)
+plot(D3sib2(:,1),D3sib2(:,2),D3sib2(:,3),D3sib2(:,4))
+title('Max Slope Method, Steel Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3sib2(:,5),D3sib2(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(24)
+subplot(3,1,1)
+plot(partisib2(:,1),partisib2(:,2),partisib2(:,3),partisib2(:,4))
+title('Max Slope Method, Steel Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiisib2(:,1),partiisib2(:,2),partiisib2(:,3),partiisib2(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiisib2(:,1),partiiisib2(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+%% ALUMINUM BOILING WATER TO ICE WATER
+
+partiabi = gammafit(alumboilicearray(:,1),alumboilicearray(:,2));
+partiiabi = middlefit(alumboilicearray(:,1),alumboilicearray(:,2));
+partiiiabi = bottomfit(partiiabi);
+D3abi = p2(alumboilicearray(:,1),alumboilicearray(:,2));
+
+figure(37)
+subplot(2,1,1)
+plot(D3abi(:,1),D3abi(:,2),D3abi(:,3),D3abi(:,4))
+title('5 \sigma Method, Aluminum Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3abi(:,5),D3abi(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(27)
+subplot(3,1,1)
+plot(partiabi(:,1),partiabi(:,2),partiabi(:,3),partiabi(:,4))
+title('5 \sigma Method, Aluminum Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiiabi(:,1),partiiabi(:,2),partiiabi(:,3),partiiabi(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiiabi(:,1),partiiiabi(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+partiabi2 = gammafit(alumboilicearray2(:,1),alumboilicearray2(:,2));
+partiiabi2 = middlefit(alumboilicearray2(:,1),alumboilicearray2(:,2));
+partiiiabi2 = bottomfit(partiiabi2);
+D3abi2 = p2(alumboilicearray2(:,1),alumboilicearray2(:,2));
+
+figure(38)
+subplot(2,1,1)
+plot(D3abi2(:,1),D3abi2(:,2),D3abi2(:,3),D3abi2(:,4))
+title('Max Slope Method, Aluminum Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3abi2(:,5),D3abi2(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(28)
+subplot(3,1,1)
+plot(partiabi2(:,1),partiabi2(:,2),partiabi2(:,3),partiabi2(:,4))
+title('Max Slope Method, Aluminum Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiiabi2(:,1),partiiabi2(:,2),partiiabi2(:,3),partiiabi2(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiiabi2(:,1),partiiiabi2(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+
+%% ALUMINUM ICE WATER TO BOILING WATER
+partiaib = gammafit(alumiceboilarray(:,1),alumiceboilarray(:,2));
+partiiaib = middlefit(alumiceboilarray(:,1),alumiceboilarray(:,2));
+partiiiaib = bottomfit(partiiaib);
+D3aib = p2(alumiceboilarray(:,1),alumiceboilarray(:,2));
+
+figure(37)
+subplot(2,1,1)
+plot(D3aib(:,1),D3aib(:,2),D3aib(:,3),D3aib(:,4))
+title('5 \sigma Method, Aluminum Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3aib(:,5),D3aib(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(27)
+subplot(3,1,1)
+plot(partiaib(:,1),partiaib(:,2),partiaib(:,3),partiaib(:,4))
+title('5 \sigma Method, Aluminum Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiiaib(:,1),partiiaib(:,2),partiiaib(:,3),partiiaib(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiiaib(:,1),partiiiaib(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+partiaib2 = gammafit(alumiceboilarray2(:,1),alumiceboilarray2(:,2));
+partiiaib2 = middlefit(alumiceboilarray2(:,1),alumiceboilarray2(:,2));
+partiiiaib2 = bottomfit(partiiaib2);
+D3aib2 = p2(alumiceboilarray2(:,1),alumiceboilarray2(:,2));
+
+figure(38)
+subplot(2,1,1)
+plot(D3aib2(:,1),D3aib2(:,2),D3aib2(:,3),D3aib2(:,4))
+title('Max Slope Method, Aluminum Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3aib2(:,5),D3aib2(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(28)
+subplot(3,1,1)
+plot(partiaib2(:,1),partiaib2(:,2),partiaib2(:,3),partiaib2(:,4))
+title('Max Slope Method, Aluminum Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiiaib2(:,1),partiiaib2(:,2),partiiaib2(:,3),partiiaib2(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiiaib2(:,1),partiiiaib2(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+%% BARE WIRE BOILING WATER TO ICE WATER
+
+
+partibbi = gammafit(bareboilicearray(:,1),bareboilicearray(:,2));
+partiibbi = middlefit(bareboilicearray(:,1),bareboilicearray(:,2));
+partiiibbi = bottomfit(partiibbi);
+D3bbi = p2(bareboilicearray(:,1),bareboilicearray(:,2));
+
+figure(39)
+subplot(2,1,1)
+plot(D3bbi(:,1),D3bbi(:,2),D3bbi(:,3),D3bbi(:,4))
+title('5 \sigma Method, Bare Wire Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction')
+grid on
+axis([-1 1 -10 110])
+subplot(2,1,2)
+plot(D3bbi(:,5),D3bbi(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-1 1 -20 20])
+
+figure(29)
+subplot(3,1,1)
+plot(partibbi(:,1),partibbi(:,2),partibbi(:,3),partibbi(:,4))
+title('5 \sigma Method, Bare Wire Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-1 1 -inf 1])
+subplot(3,1,2)
+plot(partiibbi(:,1),partiibbi(:,2),partiibbi(:,3),partiibbi(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-1 1 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiibbi(:,1),partiiibbi(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-1 1 -20 20])
+
+%USING METHOD 2
+partibbi2 = gammafit(bareboilicearray2(:,1),bareboilicearray2(:,2));
+partiibbi2 = middlefit(bareboilicearray2(:,1),bareboilicearray2(:,2));
+partiiibbi2 = bottomfit(partiibbi2);
+D3bbi2 = p2(bareboilicearray2(:,1),bareboilicearray2(:,2));
+
+figure(310)
+subplot(2,1,1)
+plot(D3bbi2(:,1),D3bbi2(:,2),D3bbi2(:,3),D3bbi2(:,4))
+title('Max Slope Method, Bare Wire Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction')
+grid on
+axis([-1 1 -10 110])
+subplot(2,1,2)
+plot(D3bbi2(:,5),D3bbi2(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-1 1 -20 20])
+
+figure(210)
+subplot(3,1,1)
+plot(partibbi2(:,1),partibbi2(:,2),partibbi2(:,3),partibbi2(:,4))
+title('Max Slope Method, Bare Wire Embedded Thermocouple, Boiling Water to Ice Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-1 1 -inf 1])
+subplot(3,1,2)
+plot(partiibbi2(:,1),partiibbi2(:,2),partiibbi2(:,3),partiibbi2(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-1 1 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiibbi2(:,1),partiiibbi2(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-1 1 -20 20])
+
+%% BARE WIRE ICE WATER TO BOILING WATER
+
+partibib = gammafit(bareiceboilarray(:,1),bareiceboilarray(:,2));
+partiibib = middlefit(bareiceboilarray(:,1),bareiceboilarray(:,2));
+partiiibib = bottomfit(partiibib);
+D3bib = p2(bareiceboilarray(:,1),bareiceboilarray(:,2));
+
+figure(33)
+subplot(2,1,1)
+plot(D3bib(:,1),D3bib(:,2),D3bib(:,3),D3bib(:,4))
+title('5 \sigma Method, Bare Wire Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3bib(:,5),D3bib(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(23)
+subplot(3,1,1)
+plot(partibib(:,1),partibib(:,2),partibib(:,3),partibib(:,4))
+title('5 \sigma Method, Bare Wire Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiibib(:,1),partiibib(:,2),partiibib(:,3),partiibib(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiibib(:,1),partiiibib(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+partibib2 = gammafit(bareiceboilarray2(:,1),bareiceboilarray2(:,2));
+partiibib2 = middlefit(bareiceboilarray2(:,1),bareiceboilarray2(:,2));
+partiiibib2 = bottomfit(partiibib2);
+D3bib2 = p2(bareiceboilarray2(:,1),bareiceboilarray2(:,2));
+
+figure(34)
+subplot(2,1,1)
+plot(D3bib2(:,1),D3bib2(:,2),D3bib2(:,3),D3bib2(:,4))
+title('Max Slope Method, Bare Wire Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','southeast')
+grid on
+axis([-3 20 -10 110])
+subplot(2,1,2)
+plot(D3bib2(:,5),D3bib2(:,6))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+legend('Data Minus Prediction','location','southeast')
+grid on
+axis([-3 20 -20 20])
+
+figure(24)
+subplot(3,1,1)
+plot(partibib2(:,1),partibib2(:,2),partibib2(:,3),partibib2(:,4))
+title('Max Slope Method, Bare Wire Embedded Thermocouple, Ice Water to Boiling Water')
+xlabel('Time (s)')
+ylabel('ln(\Gamma)')
+legend('Data','Prediction','location','northeast')
+grid on
+axis([-5 20 -inf 1])
+subplot(3,1,2)
+plot(partiibib2(:,1),partiibib2(:,2),partiibib2(:,3),partiibib2(:,4))
+xlabel('Time (s)')
+ylabel('Temperature (°C)')
+legend('Data','Prediction','location','northeast')
+axis([-5 20 -10 110])
+grid on
+subplot(3,1,3)
+plot(partiiibib2(:,1),partiiibib2(:,2))
+xlabel('Time (s)')
+ylabel('Residuals (°C)')
+grid on
+legend ('Data Minus Prediction','location','southeast')
+axis([-5 20 -20 20])
+
+
+%% Some Extra Bullshit
+% PLOTTING AXES PARAMETERS
+% xmin = -.75;
+% xmax = 1.2;
+% ymin = -10;
+% ymax = 110;
+% 
+% plottting boiling water to ice water transfer
+% NOTE! Individual points are NOT being plotted - they form a thick line and
+% it looks terrible.
+% figure(11)
+% plot(steelboilicearray(:,1),steelboilicearray(:,2))
+% title('Five \sigma Starting Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Steel Embedded Thermocouple')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(12)
+% plot(alumboilicearray(:,1),alumboilicearray(:,2))
+% title('Five \sigma Starting Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Aluminum Embedded Thermocouple')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(13)
+% plot(bareboilicearray(:,1),bareboilicearray(:,2))
+% title('Five \sigma Starting Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Bare Wire Thermocouple')
+% grid on
+% axis ([xmin xmax ymin ymax])
+% 
+% plotting ice water to boiling water transfer
+% figure(14)
+% plot(steeliceboilarray(:,1),steeliceboilarray(:,2))
+% title('Five \sigma Starting Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Steel Embedded Thermocouple','location','southeast')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(15)
+% plot(alumiceboilarray(:,1),alumiceboilarray(:,2))
+% title('Five \sigma Starting Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Aluminum Embedded Thermocouple','location','southeast')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(16)
+% plot(bareiceboilarray(:,1),bareiceboilarray(:,2))
+% title('Five \sigma Starting Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Bare Wire Thermocouple','location','southeast')
+% grid on
+% axis ([xmin xmax ymin ymax])
+% 
+% method 2
+% figure(16)
+% plot(steelboilicearray2(:,1),steelboilicearray2(:,2))
+% title('Max Slope Onset Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Steel Embedded Thermocouple')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(17)
+% plot(alumboilicearray2(:,1),alumboilicearray2(:,2))
+% title('Max Slope Onset Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Aluminum Embedded Thermocouple')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(18)
+% plot(bareboilicearray2(:,1),bareboilicearray2(:,2))
+% title('Max Slope Onset Method, Boiling Water to Ice Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Bare Wire Thermocouple')
+% grid on
+% axis ([xmin xmax ymin ymax])
+% 
+% plotting ice water to boiling water transfer
+% figure(19)
+% plot(steeliceboilarray2(:,1),steeliceboilarray2(:,2))
+% title('Max Slope Onset Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Steel Embedded Thermocouple','location','southeast')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(110)
+% plot(alumiceboilarray2(:,1),alumiceboilarray2(:,2))
+% title('Max Slope Onset Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Aluminum Embedded Thermocouple','location','southeast')
+% grid on
+% axis ([-inf inf ymin ymax])
+% 
+% figure(111)
+% plot(bareiceboilarray2(:,1),bareiceboilarray2(:,2))
+% title('Max Slope Onset Method, Ice Water to Boiling Water')
+% xlabel('Time (s)')
+% ylabel('Temperature (C)')
+% legend('Bare Wire Thermocouple','location','southeast')
+% grid on
+% axis ([xmin xmax ymin ymax])
+% 
 
 
 

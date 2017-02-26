@@ -1,0 +1,20 @@
+function [output] = middlefit(xdata,ydata) %x input is time, y input is temperature from data
+%the inputs are shifted such that the 0 value of the xdata is the beginning
+%of the event.
+
+%this function provides an output array containing the information to be
+%plotted on the middle plot of the 3-plot subplot
+
+Tfinal = ydata(end); %the final temperature of the data
+
+Tinitloc = find(xdata==0); %the location in the array where time is zero
+
+Tinitial = ydata(Tinitloc);
+
+Tpred = Tfinal - (Tfinal-Tinitial)*exp(-t/tau);
+
+
+output = [xdata,ydata,xdata,~]; %[data time, data Temperature, predicted time (same as data time), predicted Temperature
+
+
+end
