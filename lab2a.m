@@ -34,11 +34,10 @@ yy = betaHat(1) + betaHat(2)*xx; %betaHat(1) is the Y-intercept, and betaHat(2) 
 % plot the points (data) for which we found the best fit
 m = num2str(betaHat(2),3);
 b = num2str(betaHat(1),3);
-txt = strcat('V (mV) =',m,' (mV/°C) x (°C)+',b,' (mV)');
+txt = strcat('V (mV) =',m,' (mV/°C) T (°C)+',b,' (mV)');
 
 figure(1)
 plot(ThermistorTemperature,ThermocoupleVoltage,'o',xx,yy,'--')
-title('Thermocouple Measurement Response')
 ylabel('Thermocouple Output Voltage (mV)')
 xlabel('Temperature From Thermistor (°C)')
 grid on
